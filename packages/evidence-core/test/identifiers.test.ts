@@ -20,6 +20,9 @@ describe("identifier validation", () => {
     expect(normalizeLei(" 5493001kjtiigc8y1r12 ")).toBe(
       "5493001KJTIIGC8Y1R12"
     );
+    expect(normalizeLei(" hwupkr0mpou8fgxbt394 ")).toBe(
+      "HWUPKR0MPOU8FGXBT394"
+    );
   });
 
   it.each([

@@ -6,7 +6,7 @@ import type {
 
 export const ISSUED_AT = Math.floor(Date.UTC(2026, 7, 16, 12, 0, 0) / 1000);
 export const CIK = "0000320193";
-export const LEI = "5493001KJTIIGC8Y1R12";
+export const LEI = "HWUPKR0MPOU8FGXBT394";
 export const REGISTRY_ADDRESS = "0x0000000000000000000000000000000000000677";
 export const NONCE = `0x${"0".repeat(63)}1` as const;
 export const SEC_HASH = `0x${"1".repeat(64)}` as const;

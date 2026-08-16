@@ -13,7 +13,7 @@ contract ProofRailEvidenceRegistryTest is Test {
     uint64 private constant CIK = 320_193;
     // The literal is exactly twenty ASCII bytes, so this conversion cannot truncate.
     // forge-lint: disable-next-line(unsafe-typecast)
-    bytes20 private constant LEI = bytes20("5493001KJTIIGC8Y1R12");
+    bytes20 private constant LEI = bytes20("HWUPKR0MPOU8FGXBT394");
 
     ProofRailEvidenceRegistry private registry;
     address private attestor;
@@ -335,7 +335,7 @@ contract ProofRailEvidenceRegistryTest is Test {
     }
 
     function test_ComputePairKeyMatchesTypeScriptCoreVector() public view {
-        assertEq(registry.computePairKey(CIK, LEI), 0xc9a536cbaec53212d71bb19d076b334fc53ed2563d22725642bae5b70f323c8b);
+        assertEq(registry.computePairKey(CIK, LEI), 0xfacfc279b27c98f1e23f24140523fba3c4f8ad66b33794a4f0a7789360c7e22f);
     }
 
     function testFuzz_PublishesStructurallyValidEnvelope(uint64 cik, bytes20 lei, bytes32 packetHash, bytes32 nonce)

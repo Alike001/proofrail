@@ -26,13 +26,6 @@ export function normalizeLei(input: string): string {
     );
   }
 
-  if (lei.slice(4, 6) !== "00") {
-    throw new EvidenceValidationError(
-      "INVALID_LEI",
-      "LEI reserved characters at positions five and six must be 00."
-    );
-  }
-
   if (leiMod97(lei) !== 1) {
     throw new EvidenceValidationError(
       "INVALID_LEI",

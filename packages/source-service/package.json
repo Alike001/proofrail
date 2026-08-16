@@ -1,0 +1,29 @@
+{
+  "name": "@proofrail/source-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm --filter @proofrail/evidence-core build && tsc -p tsconfig.build.json",
+    "lint": "eslint . --max-warnings 0",
+    "pretest": "pnpm --filter @proofrail/evidence-core build",
+    "pretest:coverage": "pnpm --filter @proofrail/evidence-core build",
+    "pretypecheck": "pnpm --filter @proofrail/evidence-core build",
+    "smoke:live": "pnpm build && node script/live-smoke.mjs",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@proofrail/evidence-core": "workspace:*"
+  }
+}

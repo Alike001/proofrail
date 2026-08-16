@@ -12,7 +12,7 @@ It does not prove company ownership, issuer authority, regulatory approval, inve
 
 ## Current status
 
-Implementation is active. The deterministic evidence engine and the `ProofRailEvidenceRegistry` contract are implemented and tested. Source retrieval, persistence, indexing, signing service, and product surfaces remain in progress.
+Implementation is active. The deterministic evidence engine, official SEC and GLEIF source adapters, and the `ProofRailEvidenceRegistry` contract are implemented and tested. Persistence, indexing, signing service, and product surfaces remain in progress.
 
 ## Local checks
 
@@ -22,7 +22,17 @@ corepack pnpm check
 corepack pnpm build
 ```
 
-`pnpm check` runs strict TypeScript checks, 66 evidence-engine tests, 27 Foundry contract tests, and 256 fuzz cases. `pnpm test:coverage` runs both coverage suites.
+`pnpm check` runs strict TypeScript checks, 66 evidence-engine tests, 33 source-adapter tests, 27 Foundry contract tests, and 256 fuzz cases. `pnpm test:coverage` runs all coverage suites.
+
+The source adapters retain the exact response body received from each official service, calculate its SHA-256 hash, reject identifier mismatches and malformed schemas, and expose stable error codes. SEC access requires a declared contact identity in `SEC_USER_AGENT`, such as `ProofRail maintainer@example.com`. It is used only in the server request header.
+
+To check the built GLEIF adapter against its live API:
+
+```bash
+corepack pnpm --filter @proofrail/source-service smoke:live -- --gleif-only
+```
+
+For both services, set `SEC_USER_AGENT` and omit `--gleif-only`. The smoke script prints public evidence fields, response byte counts, and hashes. It does not print the configured contact header.
 
 For the local-chain contract smoke test, start Anvil in one terminal and run the publication script in another:
 
