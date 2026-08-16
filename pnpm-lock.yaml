@@ -58,6 +58,18 @@ importers:
         specifier: 0.31.10
         version: 0.31.10
 
+  packages/envelope-signer:
+    dependencies:
+      '@proofrail/db':
+        specifier: workspace:*
+        version: link:../db
+      '@proofrail/evidence-core':
+        specifier: workspace:*
+        version: link:../evidence-core
+      viem:
+        specifier: 2.55.16
+        version: 2.55.16(typescript@6.0.3)
+
   packages/evidence-core:
     dependencies:
       viem:

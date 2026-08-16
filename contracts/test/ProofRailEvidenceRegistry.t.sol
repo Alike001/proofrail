@@ -338,6 +338,36 @@ contract ProofRailEvidenceRegistryTest is Test {
         assertEq(registry.computePairKey(CIK, LEI), 0xfacfc279b27c98f1e23f24140523fba3c4f8ad66b33794a4f0a7789360c7e22f);
     }
 
+    function test_Eip712DigestMatchesTypeScriptSignerVector() public view {
+        bytes32 domainSeparator = keccak256(
+            abi.encode(
+                keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+                keccak256("ProofRailEvidenceRegistry"),
+                keccak256("1"),
+                uint256(677),
+                address(0x677)
+            )
+        );
+        bytes32 structHash = keccak256(
+            abi.encode(
+                registry.EVIDENCE_ENVELOPE_TYPEHASH(),
+                0x090115134feb5bd420d2f6173de7d0d70d33e5a6d172415da990ee2083c46f6c,
+                0xfacfc279b27c98f1e23f24140523fba3c4f8ad66b33794a4f0a7789360c7e22f,
+                bytes32(uint256(0x5a)),
+                address(1),
+                CIK,
+                LEI,
+                uint64(2_000_000_000),
+                uint64(2_000_086_400),
+                uint16(1),
+                uint16(1),
+                true
+            )
+        );
+        bytes32 digest = keccak256(abi.encodePacked(hex"1901", domainSeparator, structHash));
+        assertEq(digest, 0xd5b1612bbaf490e34b6e1bd6a00649b37c41904b11a80df609568f5722496141);
+    }
+
     function testFuzz_PublishesStructurallyValidEnvelope(uint64 cik, bytes20 lei, bytes32 packetHash, bytes32 nonce)
         public
     {

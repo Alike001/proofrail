@@ -12,7 +12,7 @@ It does not prove company ownership, issuer authority, regulatory approval, inve
 
 ## Current status
 
-Implementation is active. The deterministic evidence engine, official SEC and GLEIF source adapters, PostgreSQL persistence, and the `ProofRailEvidenceRegistry` contract are implemented and tested. The indexer worker, envelope signing service, and product surfaces remain in progress.
+Implementation is active. The deterministic evidence engine, official SEC and GLEIF source adapters, PostgreSQL persistence, publisher-bound EIP-712 signer, and the `ProofRailEvidenceRegistry` contract are implemented and tested. The indexer worker and product surfaces remain in progress.
 
 ## Local checks
 
@@ -22,7 +22,7 @@ corepack pnpm check
 corepack pnpm build
 ```
 
-`pnpm check` runs strict TypeScript checks, 66 evidence-engine tests, 33 source-adapter tests, 20 database boundary tests, 27 Foundry contract tests, and 256 fuzz cases. The eight PostgreSQL integration tests run when `PROOFRAIL_TEST_DATABASE_URL` is present.
+`pnpm check` runs strict TypeScript checks, 66 evidence-engine tests, 33 source-adapter tests, 20 database boundary tests, 10 signer tests, 28 Foundry contract tests, and 256 fuzz cases. The eight PostgreSQL integration tests run when `PROOFRAIL_TEST_DATABASE_URL` is present.
 
 The source adapters retain the exact response body received from each official service, calculate its SHA-256 hash, reject identifier mismatches and malformed schemas, and expose stable error codes. SEC access requires a declared contact identity in `SEC_USER_AGENT`, such as `ProofRail maintainer@example.com`. It is used only in the server request header.
 
