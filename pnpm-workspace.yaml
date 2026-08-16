@@ -1,5 +1,6 @@
 packages:
   - apps/*
+  - contracts
   - packages/*
   - workers/*
   - tests/*

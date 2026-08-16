@@ -1,0 +1,17 @@
+{
+  "name": "@proofrail/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "forge build --sizes",
+    "lint": "node --check script/local-smoke.mjs && forge fmt --check",
+    "smoke:local": "node script/local-smoke.mjs",
+    "test": "forge test -vv",
+    "test:coverage": "forge coverage --report summary",
+    "test:ci": "FOUNDRY_PROFILE=ci forge test -vv"
+  },
+  "dependencies": {
+    "viem": "^2.55.16"
+  }
+}

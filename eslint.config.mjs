@@ -5,6 +5,7 @@ export default tseslint.config(
   {
     ignores: [
       "**/coverage/**",
+      "**/contracts/lib/**",
       "**/dist/**",
       "**/node_modules/**",
       "**/.next/**",
@@ -35,6 +36,17 @@ export default tseslint.config(
       "@typescript-eslint/no-import-type-side-effects": "error",
       "@typescript-eslint/no-unnecessary-condition": "error",
       "@typescript-eslint/switch-exhaustiveness-check": "error"
+    }
+  },
+  {
+    files: ["**/*.js", "**/*.mjs", "**/*.cjs"],
+    extends: [tseslint.configs.disableTypeChecked],
+    languageOptions: {
+      globals: {
+        console: "readonly",
+        process: "readonly",
+        URL: "readonly"
+      }
     }
   }
 );

@@ -4,6 +4,9 @@ node_modules/
 dist/
 out/
 coverage/
+contracts/broadcast/
+contracts/cache/
+contracts/out/
 
 # Tests and local tooling
 playwright-report/
