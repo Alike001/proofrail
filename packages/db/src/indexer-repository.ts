@@ -3,7 +3,7 @@ import {
   normalizeCik,
   normalizeLei
 } from "@proofrail/evidence-core";
-import { and, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 
 import type { ProofRailDatabase } from "./client.js";
 import { DatabaseInvariantError } from "./errors.js";
@@ -268,6 +268,24 @@ export class IndexerRepository {
       .where(eq(receipts.packetHash, packetHash))
       .limit(1);
     return row ?? null;
+  }
+
+  async findLatestReceipt(chainId: number, contractAddress: HexString) {
+    assertPositiveInteger(chainId, "chain ID");
+    assertAddress(contractAddress, "contract address");
+    const [row] = await this.#db
+      .select({ receipt: receipts })
+      .from(receipts)
+      .innerJoin(chainEvents, eq(receipts.chainEventId, chainEvents.id))
+      .where(
+        and(
+          eq(chainEvents.chainId, chainId),
+          eq(chainEvents.contractAddress, contractAddress)
+        )
+      )
+      .orderBy(desc(receipts.blockNumber), desc(receipts.logIndex))
+      .limit(1);
+    return row?.receipt ?? null;
   }
 }
 

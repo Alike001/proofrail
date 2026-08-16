@@ -1,0 +1,33 @@
+{
+  "name": "@proofrail/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prebuild": "pnpm --filter @proofrail/db build",
+    "build": "next build",
+    "dev": "next dev",
+    "prelint": "pnpm --filter @proofrail/db build",
+    "lint": "eslint . --max-warnings 0",
+    "pretest": "pnpm --filter @proofrail/db build",
+    "pretest:coverage": "pnpm --filter @proofrail/db build",
+    "pretypecheck": "pnpm --filter @proofrail/db build",
+    "start": "next start",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@proofrail/db": "workspace:*",
+    "next": "16.2.2",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "server-only": "0.0.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.61.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4"
+  }
+}

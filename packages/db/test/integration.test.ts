@@ -16,7 +16,9 @@ import {
 import type { ProofRailDatabaseConnection } from "../src/index.js";
 import {
   ATTESTOR,
+  CHAIN_ID,
   PUBLISHER,
+  REGISTRY,
   makeBatch,
   makeDraftInput,
   makeEvent,
@@ -149,6 +151,17 @@ describeDatabase("PostgreSQL persistence", () => {
       packetHash: makeEvent().packetHash
     });
     await expect(repository.findReceipt(hash(99))).resolves.toBeNull();
+    await expect(
+      repository.findLatestReceipt(CHAIN_ID, REGISTRY)
+    ).resolves.toMatchObject({
+      packetHash: makeEvent().packetHash
+    });
+    await expect(
+      repository.findLatestReceipt(
+        CHAIN_ID,
+        "0x0000000000000000000000000000000000000998"
+      )
+    ).resolves.toBeNull();
   });
 
   it("atomically clears one registry's derived state for reorganization recovery", async () => {
