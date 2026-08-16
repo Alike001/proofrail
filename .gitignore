@@ -1,0 +1,35 @@
+# Dependencies and framework output
+node_modules/
+.next/
+dist/
+out/
+coverage/
+
+# Tests and local tooling
+playwright-report/
+test-results/
+.turbo/
+*.tsbuildinfo
+
+# Secrets and local databases
+.env
+.env.*
+!.env.example
+*.db
+*.db-shm
+*.db-wal
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/
+
+# Private planning and session documents
+AGENTS.md
+PRD.md
+architecture.md
+design.doc.md
+research-intake.md
+handoff.md
+PROMPTS.md
+log.md
