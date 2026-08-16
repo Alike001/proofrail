@@ -82,6 +82,15 @@ importers:
         specifier: workspace:*
         version: link:../evidence-core
 
+  workers/indexer:
+    dependencies:
+      '@proofrail/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      viem:
+        specifier: 2.55.16
+        version: 2.55.16(typescript@6.0.3)
+
 packages:
 
   '@adraffy/ens-normalize@1.11.1':

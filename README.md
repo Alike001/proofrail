@@ -12,7 +12,7 @@ It does not prove company ownership, issuer authority, regulatory approval, inve
 
 ## Current status
 
-Implementation is active. The deterministic evidence engine, official SEC and GLEIF source adapters, PostgreSQL persistence, publisher-bound EIP-712 signer, and the `ProofRailEvidenceRegistry` contract are implemented and tested. The indexer worker and product surfaces remain in progress.
+Implementation is active. The deterministic evidence engine, official SEC and GLEIF source adapters, PostgreSQL persistence, publisher-bound EIP-712 signer, durable event indexer, and the `ProofRailEvidenceRegistry` contract are implemented and tested. The product surfaces remain in progress.
 
 ## Local checks
 
@@ -22,9 +22,11 @@ corepack pnpm check
 corepack pnpm build
 ```
 
-`pnpm check` runs strict TypeScript checks, 66 evidence-engine tests, 33 source-adapter tests, 20 database boundary tests, 10 signer tests, 28 Foundry contract tests, and 256 fuzz cases. The eight PostgreSQL integration tests run when `PROOFRAIL_TEST_DATABASE_URL` is present.
+`pnpm check` runs strict TypeScript checks, 66 evidence-engine tests, 33 source-adapter tests, 20 database boundary tests, 10 signer tests, 37 indexer tests, 28 Foundry contract tests, and 256 fuzz cases. The nine PostgreSQL integration tests run when `PROOFRAIL_TEST_DATABASE_URL` is present.
 
 The source adapters retain the exact response body received from each official service, calculate its SHA-256 hash, reject identifier mismatches and malformed schemas, and expose stable error codes. SEC access requires a declared contact identity in `SEC_USER_AGENT`, such as `ProofRail maintainer@example.com`. It is used only in the server request header.
+
+The indexer queries inclusive confirmed block ranges with viem, verifies successful transaction receipts, commits derived receipts with its cursor in one PostgreSQL transaction, and rebuilds from the configured registry deployment block if the saved canonical hash changes.
 
 To check the built GLEIF adapter against its live API:
 
@@ -52,6 +54,13 @@ corepack pnpm --filter @proofrail/contracts smoke:local
 ```
 
 The smoke script uses Anvil's unlocked accounts through JSON-RPC. It deploys the registry, signs an EIP-712 envelope, publishes from the bound wallet, waits for confirmation, and verifies the stored receipt. It contains no private key.
+
+With the temporary PostgreSQL service and Anvil running, the indexer smoke test proves the reverse path from a real contract event to its persisted receipt:
+
+```bash
+PROOFRAIL_TEST_DATABASE_URL=postgresql://proofrail:proofrail_test@127.0.0.1:55432/proofrail_test \
+  corepack pnpm --filter @proofrail/indexer smoke:local
+```
 
 OpenZeppelin Contracts 5.6.1 and Forge Standard Library 1.14.0 are pinned under `contracts/lib` for reproducible Solidity builds.
 

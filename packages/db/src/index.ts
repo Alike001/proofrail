@@ -25,8 +25,10 @@ export {
   assertReceiptBatch
 } from "./indexer-repository.js";
 export type {
+  IndexerCursorRecord,
   PublishedReceiptEvent,
   ReceiptBatchResult,
-  ReceiptEventBatch
+  ReceiptEventBatch,
+  ResetIndexResult
 } from "./indexer-repository.js";
 export * from "./schema.js";

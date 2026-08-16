@@ -1,6 +1,11 @@
 import { readFile } from "node:fs/promises";
 
 import {
+  IndexerRepository,
+  createDatabaseConnection,
+  migrateDatabase
+} from "@proofrail/db";
+import {
   createPublicClient,
   createWalletClient,
   defineChain,
@@ -10,6 +15,17 @@ import {
   stringToHex,
   toBytes
 } from "viem";
+
+import {
+  EvidenceReceiptIndexer,
+  createViemChainReader
+} from "../dist/index.js";
+
+const databaseUrl = process.env.PROOFRAIL_TEST_DATABASE_URL;
+
+if (databaseUrl === undefined || databaseUrl === "") {
+  throw new Error("PROOFRAIL_TEST_DATABASE_URL is required for the local indexer smoke test.");
+}
 
 const rpcUrl = process.env.LOCAL_RPC_URL ?? "http://127.0.0.1:8545";
 const chain = defineChain({
@@ -21,13 +37,13 @@ const chain = defineChain({
 const artifact = JSON.parse(
   await readFile(
     new URL(
-      "../out/ProofRailEvidenceRegistry.sol/ProofRailEvidenceRegistry.json",
+      "../../../contracts/out/ProofRailEvidenceRegistry.sol/ProofRailEvidenceRegistry.json",
       import.meta.url
     ),
     "utf8"
   )
 );
-const publicClient = createPublicClient({ chain, transport: http(rpcUrl) });
+const publicClient = createPublicClient({ cacheTime: 0, chain, transport: http(rpcUrl) });
 const accounts = await publicClient.request({ method: "eth_accounts" });
 
 if (accounts.length < 3) {
@@ -35,11 +51,7 @@ if (accounts.length < 3) {
 }
 
 const [owner, attestor, publisher] = accounts;
-const ownerWallet = createWalletClient({
-  account: owner,
-  chain,
-  transport: http(rpcUrl)
-});
+const ownerWallet = createWalletClient({ account: owner, chain, transport: http(rpcUrl) });
 const attestorWallet = createWalletClient({
   account: attestor,
   chain,
@@ -69,9 +81,13 @@ const cik = 320_193n;
 const lei = stringToHex("HWUPKR0MPOU8FGXBT394", { size: 20 });
 const issuedAt = latestBlock.timestamp;
 const envelope = {
-  packetHash: keccak256(toBytes("proofrail-local-smoke-packet")),
+  packetHash: keccak256(
+    toBytes(`proofrail-indexer-local-smoke-packet:${registryAddress.toLowerCase()}`)
+  ),
   pairKey: keccak256(encodePacked(["uint64", "bytes20"], [cik, lei])),
-  nonce: keccak256(toBytes("proofrail-local-smoke-nonce")),
+  nonce: keccak256(
+    toBytes(`proofrail-indexer-local-smoke-nonce:${registryAddress.toLowerCase()}`)
+  ),
   publisher,
   cik,
   lei,
@@ -104,54 +120,60 @@ const signature = await attestorWallet.signTypedData({
     chainId: chain.id,
     verifyingContract: registryAddress
   },
-  types,
+  message: envelope,
   primaryType: "EvidenceEnvelope",
-  message: envelope
+  types
 });
 const publicationHash = await publisherWallet.writeContract({
   account: publisher,
   address: registryAddress,
   abi: artifact.abi,
-  functionName: "publishReceipt",
-  args: [envelope, signature]
+  args: [envelope, signature],
+  functionName: "publishReceipt"
 });
-const publicationReceipt = await publicClient.waitForTransactionReceipt({
-  hash: publicationHash
-});
-const exists = await publicClient.readContract({
-  address: registryAddress,
-  abi: artifact.abi,
-  functionName: "receiptExists",
-  args: [envelope.packetHash]
-});
-const latestPacket = await publicClient.readContract({
-  address: registryAddress,
-  abi: artifact.abi,
-  functionName: "latestPacketByPair",
-  args: [envelope.pairKey]
-});
+await publicClient.waitForTransactionReceipt({ hash: publicationHash });
 
-if (
-  publicationReceipt.status !== "success" ||
-  exists !== true ||
-  latestPacket !== envelope.packetHash
-) {
-  throw new Error("Local receipt publication did not reconcile with registry state.");
-}
-
-console.log(
-  JSON.stringify(
+const connection = createDatabaseConnection(databaseUrl);
+try {
+  await migrateDatabase(connection.db);
+  const repository = new IndexerRepository(connection.db);
+  await repository.resetContractIndex(chain.id, registryAddress.toLowerCase());
+  const indexer = new EvidenceReceiptIndexer(
+    createViemChainReader(publicClient),
+    repository,
     {
+      batchSize: 100,
       chainId: chain.id,
-      registryAddress,
-      deploymentTransaction: deploymentHash,
-      publicationTransaction: publicationHash,
-      packetHash: envelope.packetHash,
-      publisher,
-      attestor,
-      receiptExists: exists
-    },
-    null,
-    2
-  )
-);
+      confirmationDepth: 0,
+      contractAddress: registryAddress,
+      deploymentBlock: deploymentReceipt.blockNumber
+    }
+  );
+  const indexed = await indexer.runOnce();
+  const receipt = await repository.findReceipt(envelope.packetHash);
+  if (
+    indexed.status !== "indexed" ||
+    indexed.insertedEvents !== 1 ||
+    receipt?.transactionHash !== publicationHash ||
+    receipt.packetHash !== envelope.packetHash ||
+    receipt.pairKey !== envelope.pairKey
+  ) {
+    throw new Error("The local contract event did not reconcile with the indexed receipt.");
+  }
+  console.log(
+    JSON.stringify(
+      {
+        chainId: chain.id,
+        indexedBlock: receipt.blockNumber.toString(),
+        packetHash: receipt.packetHash,
+        publicationTransaction: publicationHash,
+        registryAddress,
+        status: indexed.status
+      },
+      null,
+      2
+    )
+  );
+} finally {
+  await connection.close();
+}

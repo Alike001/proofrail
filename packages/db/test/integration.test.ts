@@ -151,6 +151,26 @@ describeDatabase("PostgreSQL persistence", () => {
     await expect(repository.findReceipt(hash(99))).resolves.toBeNull();
   });
 
+  it("atomically clears one registry's derived state for reorganization recovery", async () => {
+    const repository = new IndexerRepository(connection.db);
+    await expect(repository.getCursor(677, makeBatch().contractAddress)).resolves.toBeNull();
+    await repository.ingestBatch(makeBatch());
+    await expect(repository.getCursor(677, makeBatch().contractAddress)).resolves.toEqual({
+      lastProcessedBlock: 100n,
+      lastVerifiedBlockHash: makeBatch().toBlockHash
+    });
+    await expect(
+      repository.resetContractIndex(677, makeBatch().contractAddress)
+    ).resolves.toEqual({ deletedCursor: true, deletedEvents: 1 });
+    expect(await connection.db.select().from(chainEvents)).toHaveLength(0);
+    expect(await connection.db.select().from(receipts)).toHaveLength(0);
+    expect(await connection.db.select().from(currentReceipts)).toHaveLength(0);
+    expect(await connection.db.select().from(indexerCursors)).toHaveLength(0);
+    await expect(
+      repository.resetContractIndex(677, makeBatch().contractAddress)
+    ).resolves.toEqual({ deletedCursor: false, deletedEvents: 0 });
+  });
+
   it("updates the pair pointer only for the newer chain position", async () => {
     const repository = new IndexerRepository(connection.db);
     await repository.ingestBatch(makeBatch());

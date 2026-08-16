@@ -53,11 +53,80 @@ export interface ReceiptBatchResult {
   readonly alreadyProcessed: boolean;
 }
 
+export interface IndexerCursorRecord {
+  readonly lastProcessedBlock: bigint;
+  readonly lastVerifiedBlockHash: HexString;
+}
+
+export interface ResetIndexResult {
+  readonly deletedEvents: number;
+  readonly deletedCursor: boolean;
+}
+
 export class IndexerRepository {
   readonly #db: ProofRailDatabase;
 
   constructor(db: ProofRailDatabase) {
     this.#db = db;
+  }
+
+  async getCursor(
+    chainId: number,
+    contractAddress: HexString
+  ): Promise<IndexerCursorRecord | null> {
+    assertPositiveInteger(chainId, "chain ID");
+    assertAddress(contractAddress, "contract address");
+    const [cursor] = await this.#db
+      .select({
+        lastProcessedBlock: indexerCursors.lastProcessedBlock,
+        lastVerifiedBlockHash: indexerCursors.lastVerifiedBlockHash
+      })
+      .from(indexerCursors)
+      .where(
+        and(
+          eq(indexerCursors.chainId, chainId),
+          eq(indexerCursors.contractAddress, contractAddress)
+        )
+      )
+      .limit(1);
+    return cursor === undefined
+      ? null
+      : {
+          lastProcessedBlock: cursor.lastProcessedBlock,
+          lastVerifiedBlockHash: cursor.lastVerifiedBlockHash as HexString
+        };
+  }
+
+  async resetContractIndex(
+    chainId: number,
+    contractAddress: HexString
+  ): Promise<ResetIndexResult> {
+    assertPositiveInteger(chainId, "chain ID");
+    assertAddress(contractAddress, "contract address");
+    return this.#db.transaction(async (transaction) => {
+      const deletedEvents = await transaction
+        .delete(chainEvents)
+        .where(
+          and(
+            eq(chainEvents.chainId, chainId),
+            eq(chainEvents.contractAddress, contractAddress)
+          )
+        )
+        .returning({ id: chainEvents.id });
+      const deletedCursor = await transaction
+        .delete(indexerCursors)
+        .where(
+          and(
+            eq(indexerCursors.chainId, chainId),
+            eq(indexerCursors.contractAddress, contractAddress)
+          )
+        )
+        .returning({ chainId: indexerCursors.chainId });
+      return {
+        deletedEvents: deletedEvents.length,
+        deletedCursor: deletedCursor.length === 1
+      };
+    });
   }
 
   async ingestBatch(batch: ReceiptEventBatch): Promise<ReceiptBatchResult> {
