@@ -1,0 +1,39 @@
+{
+  "name": "@proofrail/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "drizzle"
+  ],
+  "scripts": {
+    "prebuild": "pnpm --filter @proofrail/source-service build",
+    "build": "tsc -p tsconfig.build.json",
+    "db:generate": "drizzle-kit generate",
+    "lint": "eslint . --max-warnings 0",
+    "pretest": "pnpm --filter @proofrail/source-service build",
+    "pretest:coverage": "pnpm --filter @proofrail/source-service build",
+    "pretypecheck": "pnpm --filter @proofrail/source-service build",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:integration": "vitest run test/integration.test.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@proofrail/evidence-core": "workspace:*",
+    "@proofrail/source-service": "workspace:*",
+    "drizzle-orm": "0.45.2",
+    "pg": "8.23.0"
+  },
+  "devDependencies": {
+    "@types/pg": "8.21.0",
+    "drizzle-kit": "0.31.10"
+  }
+}

@@ -1,0 +1,992 @@
+{
+  "id": "8cb6cbc6-b47b-48ff-b69e-652a123d49d8",
+  "prevId": "df656c99-331b-4311-b671-a561c2a849b4",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.chain_events": {
+      "name": "chain_events",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "chain_id": {
+          "name": "chain_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "contract_address": {
+          "name": "contract_address",
+          "type": "char(42)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "transaction_hash": {
+          "name": "transaction_hash",
+          "type": "char(66)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "log_index": {
+          "name": "log_index",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "block_number": {
+          "name": "block_number",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "block_hash": {
+          "name": "block_hash",
+          "type": "char(66)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "packet_hash": {
+          "name": "packet_hash",
+          "type": "char(66)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pair_key": {
+          "name": "pair_key",
+          "type": "char(66)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nonce": {
+          "name": "nonce",
+          "type": "char(66)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "raw_event": {
+          "name": "raw_event",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "observed_at": {
+          "name": "observed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "chain_events_location_uidx": {
+          "name": "chain_events_location_uidx",
+          "columns": [
+            {
+              "expression": "chain_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "transaction_hash",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "log_index",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "chain_events_packet_hash_uidx": {
+          "name": "chain_events_packet_hash_uidx",
+          "columns": [
+            {
+              "expression": "chain_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "contract_address",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "packet_hash",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "chain_events_block_idx": {
+          "name": "chain_events_block_idx",
+          "columns": [
+            {
+              "expression": "chain_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "contract_address",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "block_number",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "chain_events_chain_id_check": {
+          "name": "chain_events_chain_id_check",
+          "value": "\"chain_events\".\"chain_id\" > 0"
+        },
+        "chain_events_log_index_check": {
+          "name": "chain_events_log_index_check",
+          "value": "\"chain_events\".\"log_index\" >= 0"
+        },
+        "chain_events_block_number_check": {
+          "name": "chain_events_block_number_check",
+          "value": "\"chain_events\".\"block_number\" >= 0"
+        },
+        "chain_events_contract_check": {
+          "name": "chain_events_contract_check",
+          "value": "\"chain_events\".\"contract_address\" ~ '^0x[0-9a-f]{40}$'"
+        },
+        "chain_events_transaction_hash_check": {
+          "name": "chain_events_transaction_hash_check",
+          "value": "\"chain_events\".\"transaction_hash\" ~ '^0x[0-9a-f]{64}$'"
+        },
+        "chain_events_block_hash_check": {
+          "name": "chain_events_block_hash_check",
+          "value": "\"chain_events\".\"block_hash\" ~ '^0x[0-9a-f]{64}$'"
+        },
+        "chain_events_packet_hash_check": {
+          "name": "chain_events_packet_hash_check",
+          "value": "\"chain_events\".\"packet_hash\" ~ '^0x[0-9a-f]{64}$'"
+        },
+        "chain_events_pair_key_check": {
+          "name": "chain_events_pair_key_check",
+          "value": "\"chain_events\".\"pair_key\" ~ '^0x[0-9a-f]{64}$'"
+        },
+        "chain_events_nonce_check": {
+          "name": "chain_events_nonce_check",
+          "value": "\"chain_events\".\"nonce\" ~ '^0x[0-9a-f]{64}$'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.current_receipts": {
+      "name": "current_receipts",
+      "schema": "",
+      "columns": {
+        "pair_key": {
+          "name": "pair_key",
+          "type": "char(66)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "packet_hash": {
+          "name": "packet_hash",
+          "type": "char(66)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "block_number": {
+          "name": "block_number",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "log_index": {
+          "name": "log_index",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "current_receipts_packet_hash_receipts_packet_hash_fk": {
+          "name": "current_receipts_packet_hash_receipts_packet_hash_fk",
+          "tableFrom": "current_receipts",
+          "tableTo": "receipts",
+          "columnsFrom": [
+            "packet_hash"
+          ],
+          "columnsTo": [
+            "packet_hash"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "current_receipts_pair_key_check": {
+          "name": "current_receipts_pair_key_check",
+          "value": "\"current_receipts\".\"pair_key\" ~ '^0x[0-9a-f]{64}$'"
+        },
+        "current_receipts_packet_hash_check": {
+          "name": "current_receipts_packet_hash_check",
+          "value": "\"current_receipts\".\"packet_hash\" ~ '^0x[0-9a-f]{64}$'"
+        },
+        "current_receipts_block_check": {
+          "name": "current_receipts_block_check",
+          "value": "\"current_receipts\".\"block_number\" >= 0"
+        },
+        "current_receipts_log_check": {
+          "name": "current_receipts_log_check",
+          "value": "\"current_receipts\".\"log_index\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.evidence_drafts": {
+      "name": "evidence_drafts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "sec_snapshot_id": {
+          "name": "sec_snapshot_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gleif_snapshot_id": {
+          "name": "gleif_snapshot_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "chain_id": {
+          "name": "chain_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "registry_address": {
+          "name": "registry_address",
+          "type": "char(42)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cik": {
+          "name": "cik",
+          "type": "char(10)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lei": {
+          "name": "lei",
+          "type": "char(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pair_key": {
+          "name": "pair_key",
+          "type": "char(66)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "normalized_sec_name": {
+          "name": "normalized_sec_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "normalized_gleif_name": {
+          "name": "normalized_gleif_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "policy_passed": {
+          "name": "policy_passed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "policy_result": {
+          "name": "policy_result",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "packet": {
+          "name": "packet",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "canonical_packet": {
+          "name": "canonical_packet",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "packet_hash": {
+          "name": "packet_hash",
+          "type": "char(66)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nonce": {
+          "name": "nonce",
+          "type": "char(66)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "issued_at": {
+          "name": "issued_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "evidence_drafts_packet_hash_uidx": {
+          "name": "evidence_drafts_packet_hash_uidx",
+          "columns": [
+            {
+              "expression": "packet_hash",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "evidence_drafts_nonce_uidx": {
+          "name": "evidence_drafts_nonce_uidx",
+          "columns": [
+            {
+              "expression": "nonce",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "evidence_drafts_sec_snapshot_id_source_snapshots_id_fk": {
+          "name": "evidence_drafts_sec_snapshot_id_source_snapshots_id_fk",
+          "tableFrom": "evidence_drafts",
+          "tableTo": "source_snapshots",
+          "columnsFrom": [
+            "sec_snapshot_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "evidence_drafts_gleif_snapshot_id_source_snapshots_id_fk": {
+          "name": "evidence_drafts_gleif_snapshot_id_source_snapshots_id_fk",
+          "tableFrom": "evidence_drafts",
+          "tableTo": "source_snapshots",
+          "columnsFrom": [
+            "gleif_snapshot_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "evidence_drafts_chain_id_check": {
+          "name": "evidence_drafts_chain_id_check",
+          "value": "\"evidence_drafts\".\"chain_id\" > 0"
+        },
+        "evidence_drafts_registry_check": {
+          "name": "evidence_drafts_registry_check",
+          "value": "\"evidence_drafts\".\"registry_address\" ~ '^0x[0-9a-f]{40}$'"
+        },
+        "evidence_drafts_cik_check": {
+          "name": "evidence_drafts_cik_check",
+          "value": "\"evidence_drafts\".\"cik\" ~ '^[0-9]{10}$' and \"evidence_drafts\".\"cik\" <> '0000000000'"
+        },
+        "evidence_drafts_lei_check": {
+          "name": "evidence_drafts_lei_check",
+          "value": "\"evidence_drafts\".\"lei\" ~ '^[A-Z0-9]{18}[0-9]{2}$'"
+        },
+        "evidence_drafts_pair_key_check": {
+          "name": "evidence_drafts_pair_key_check",
+          "value": "\"evidence_drafts\".\"pair_key\" ~ '^0x[0-9a-f]{64}$'"
+        },
+        "evidence_drafts_packet_hash_check": {
+          "name": "evidence_drafts_packet_hash_check",
+          "value": "\"evidence_drafts\".\"packet_hash\" ~ '^0x[0-9a-f]{64}$'"
+        },
+        "evidence_drafts_nonce_check": {
+          "name": "evidence_drafts_nonce_check",
+          "value": "\"evidence_drafts\".\"nonce\" ~ '^0x[0-9a-f]{64}$' and \"evidence_drafts\".\"nonce\" <> '0x0000000000000000000000000000000000000000000000000000000000000000'"
+        },
+        "evidence_drafts_snapshot_distinct_check": {
+          "name": "evidence_drafts_snapshot_distinct_check",
+          "value": "\"evidence_drafts\".\"sec_snapshot_id\" <> \"evidence_drafts\".\"gleif_snapshot_id\""
+        },
+        "evidence_drafts_expiry_check": {
+          "name": "evidence_drafts_expiry_check",
+          "value": "\"evidence_drafts\".\"expires_at\" > \"evidence_drafts\".\"issued_at\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.indexer_cursors": {
+      "name": "indexer_cursors",
+      "schema": "",
+      "columns": {
+        "chain_id": {
+          "name": "chain_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "contract_address": {
+          "name": "contract_address",
+          "type": "char(42)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "last_processed_block": {
+          "name": "last_processed_block",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "last_verified_block_hash": {
+          "name": "last_verified_block_hash",
+          "type": "char(66)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "indexer_cursors_chain_id_contract_address_pk": {
+          "name": "indexer_cursors_chain_id_contract_address_pk",
+          "columns": [
+            "chain_id",
+            "contract_address"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "indexer_cursors_chain_id_check": {
+          "name": "indexer_cursors_chain_id_check",
+          "value": "\"indexer_cursors\".\"chain_id\" > 0"
+        },
+        "indexer_cursors_contract_check": {
+          "name": "indexer_cursors_contract_check",
+          "value": "\"indexer_cursors\".\"contract_address\" ~ '^0x[0-9a-f]{40}$'"
+        },
+        "indexer_cursors_block_check": {
+          "name": "indexer_cursors_block_check",
+          "value": "\"indexer_cursors\".\"last_processed_block\" >= 0"
+        },
+        "indexer_cursors_hash_check": {
+          "name": "indexer_cursors_hash_check",
+          "value": "\"indexer_cursors\".\"last_verified_block_hash\" ~ '^0x[0-9a-f]{64}$'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.receipts": {
+      "name": "receipts",
+      "schema": "",
+      "columns": {
+        "packet_hash": {
+          "name": "packet_hash",
+          "type": "char(66)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "chain_event_id": {
+          "name": "chain_event_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pair_key": {
+          "name": "pair_key",
+          "type": "char(66)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cik": {
+          "name": "cik",
+          "type": "char(10)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lei": {
+          "name": "lei",
+          "type": "char(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "issued_at": {
+          "name": "issued_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "schema_version": {
+          "name": "schema_version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "policy_version": {
+          "name": "policy_version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "publisher_address": {
+          "name": "publisher_address",
+          "type": "char(42)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "attestor_address": {
+          "name": "attestor_address",
+          "type": "char(42)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "transaction_hash": {
+          "name": "transaction_hash",
+          "type": "char(66)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "log_index": {
+          "name": "log_index",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "block_number": {
+          "name": "block_number",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "block_hash": {
+          "name": "block_hash",
+          "type": "char(66)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "indexed_at": {
+          "name": "indexed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "receipts_pair_order_idx": {
+          "name": "receipts_pair_order_idx",
+          "columns": [
+            {
+              "expression": "pair_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "block_number",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "log_index",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "receipts_chain_event_id_chain_events_id_fk": {
+          "name": "receipts_chain_event_id_chain_events_id_fk",
+          "tableFrom": "receipts",
+          "tableTo": "chain_events",
+          "columnsFrom": [
+            "chain_event_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "receipts_chain_event_id_unique": {
+          "name": "receipts_chain_event_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "chain_event_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "receipts_packet_hash_check": {
+          "name": "receipts_packet_hash_check",
+          "value": "\"receipts\".\"packet_hash\" ~ '^0x[0-9a-f]{64}$'"
+        },
+        "receipts_pair_key_check": {
+          "name": "receipts_pair_key_check",
+          "value": "\"receipts\".\"pair_key\" ~ '^0x[0-9a-f]{64}$'"
+        },
+        "receipts_cik_check": {
+          "name": "receipts_cik_check",
+          "value": "\"receipts\".\"cik\" ~ '^[0-9]{10}$' and \"receipts\".\"cik\" <> '0000000000'"
+        },
+        "receipts_lei_check": {
+          "name": "receipts_lei_check",
+          "value": "\"receipts\".\"lei\" ~ '^[A-Z0-9]{18}[0-9]{2}$'"
+        },
+        "receipts_expiry_check": {
+          "name": "receipts_expiry_check",
+          "value": "\"receipts\".\"expires_at\" > \"receipts\".\"issued_at\""
+        },
+        "receipts_versions_check": {
+          "name": "receipts_versions_check",
+          "value": "\"receipts\".\"schema_version\" > 0 and \"receipts\".\"policy_version\" > 0"
+        },
+        "receipts_publisher_check": {
+          "name": "receipts_publisher_check",
+          "value": "\"receipts\".\"publisher_address\" ~ '^0x[0-9a-f]{40}$'"
+        },
+        "receipts_attestor_check": {
+          "name": "receipts_attestor_check",
+          "value": "\"receipts\".\"attestor_address\" ~ '^0x[0-9a-f]{40}$'"
+        },
+        "receipts_transaction_hash_check": {
+          "name": "receipts_transaction_hash_check",
+          "value": "\"receipts\".\"transaction_hash\" ~ '^0x[0-9a-f]{64}$'"
+        },
+        "receipts_log_index_check": {
+          "name": "receipts_log_index_check",
+          "value": "\"receipts\".\"log_index\" >= 0"
+        },
+        "receipts_block_number_check": {
+          "name": "receipts_block_number_check",
+          "value": "\"receipts\".\"block_number\" >= 0"
+        },
+        "receipts_block_hash_check": {
+          "name": "receipts_block_hash_check",
+          "value": "\"receipts\".\"block_hash\" ~ '^0x[0-9a-f]{64}$'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.signed_envelopes": {
+      "name": "signed_envelopes",
+      "schema": "",
+      "columns": {
+        "packet_hash": {
+          "name": "packet_hash",
+          "type": "char(66)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "typed_data": {
+          "name": "typed_data",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "signature": {
+          "name": "signature",
+          "type": "char(132)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "signer_address": {
+          "name": "signer_address",
+          "type": "char(42)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "publisher_address": {
+          "name": "publisher_address",
+          "type": "char(42)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "signed_envelopes_packet_hash_evidence_drafts_packet_hash_fk": {
+          "name": "signed_envelopes_packet_hash_evidence_drafts_packet_hash_fk",
+          "tableFrom": "signed_envelopes",
+          "tableTo": "evidence_drafts",
+          "columnsFrom": [
+            "packet_hash"
+          ],
+          "columnsTo": [
+            "packet_hash"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "signed_envelopes_signature_check": {
+          "name": "signed_envelopes_signature_check",
+          "value": "\"signed_envelopes\".\"signature\" ~ '^0x[0-9a-f]{130}$'"
+        },
+        "signed_envelopes_signer_check": {
+          "name": "signed_envelopes_signer_check",
+          "value": "\"signed_envelopes\".\"signer_address\" ~ '^0x[0-9a-f]{40}$'"
+        },
+        "signed_envelopes_publisher_check": {
+          "name": "signed_envelopes_publisher_check",
+          "value": "\"signed_envelopes\".\"publisher_address\" ~ '^0x[0-9a-f]{40}$'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.source_snapshots": {
+      "name": "source_snapshots",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "source": {
+          "name": "source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_url": {
+          "name": "source_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "retrieved_at": {
+          "name": "retrieved_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "response_headers": {
+          "name": "response_headers",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "body": {
+          "name": "body",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "snapshot_hash": {
+          "name": "snapshot_hash",
+          "type": "char(66)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "source_snapshots_hash_idx": {
+          "name": "source_snapshots_hash_idx",
+          "columns": [
+            {
+              "expression": "source",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "snapshot_hash",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "source_snapshots_retrieved_at_idx": {
+          "name": "source_snapshots_retrieved_at_idx",
+          "columns": [
+            {
+              "expression": "retrieved_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "source_snapshots_source_check": {
+          "name": "source_snapshots_source_check",
+          "value": "\"source_snapshots\".\"source\" in ('SEC', 'GLEIF')"
+        },
+        "source_snapshots_body_check": {
+          "name": "source_snapshots_body_check",
+          "value": "octet_length(\"source_snapshots\".\"body\") > 0"
+        },
+        "source_snapshots_hash_check": {
+          "name": "source_snapshots_hash_check",
+          "value": "\"source_snapshots\".\"snapshot_hash\" ~ '^0x[0-9a-f]{64}$'"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
