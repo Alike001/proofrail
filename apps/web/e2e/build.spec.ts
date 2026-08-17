@@ -29,6 +29,9 @@ test("builds, reviews, and confirms a publisher-bound BOT receipt", async ({ pag
   });
   await mockBuild(page, passingDraft());
   await mockEnvelope(page);
+  await page.route(`**/api/receipts/${PACKET_HASH}`, async (route) => {
+    await route.fulfill({ contentType: "application/json", json: { ok: true, receipt: {} } });
+  });
   await installWallet(page, "confirm");
 
   await page.goto("/build");
@@ -55,7 +58,7 @@ test("builds, reviews, and confirms a publisher-bound BOT receipt", async ({ pag
   await page.getByRole("button", { name: "Publish on BOT Chain" }).click();
   await expect(page.getByText("CONFIRMED ON BOT MAINNET")).toBeVisible();
   await expect(page.locator(".confirmed-band")).toBeFocused();
-  await expect(page.getByText("Transaction confirmed. Receipt indexing is in progress.")).toBeVisible();
+  await expect(page.getByText("Receipt indexed and publicly readable.")).toBeVisible();
   await expect(page.getByRole("link", { name: "Open transaction on BOTScan ↗" })).toHaveAttribute(
     "href",
     `https://scan.botchain.ai/tx/${TX_HASH}`

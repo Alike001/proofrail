@@ -20,8 +20,10 @@ import {
 } from "../lib/publish-receipt";
 import { explorerUrl, shortHex } from "../lib/site";
 import { POLICY_LABELS } from "../lib/policy-labels";
+import { waitForIndexedReceipt } from "../lib/indexed-receipt";
 
 type BuildState = "input" | "retrieving" | "compare" | "review" | "publishing" | "indexing";
+type IndexingState = "waiting" | "ready" | "timeout";
 
 export function BuildWorkflow() {
   const [cik, setCik] = useState("0000320193");
@@ -31,6 +33,7 @@ export function BuildWorkflow() {
   const [publication, setPublication] = useState<PublishEnvelopeView | null>(null);
   const [publisher, setPublisher] = useState<Address | null>(null);
   const [transactionHash, setTransactionHash] = useState<Hex | null>(null);
+  const [indexingState, setIndexingState] = useState<IndexingState>("waiting");
   const [error, setError] = useState<ApiErrorView | null>(null);
   const resultRef = useRef<HTMLElement>(null);
   const reviewRef = useRef<HTMLElement>(null);
@@ -62,6 +65,7 @@ export function BuildWorkflow() {
     setPublication(null);
     setPublisher(null);
     setTransactionHash(null);
+    setIndexingState("waiting");
     setState("retrieving");
     try {
       const response = await fetch("/api/evidence/build", {
@@ -115,9 +119,10 @@ export function BuildWorkflow() {
   }
 
   async function publish() {
-    if (window.ethereum === undefined || publisher === null || publication === null) {
+    if (window.ethereum === undefined || publisher === null || publication === null || draft === null) {
       return;
     }
+    const packetHash = draft.packetHash;
     setError(null);
     setState("publishing");
     try {
@@ -125,6 +130,8 @@ export function BuildWorkflow() {
       setTransactionHash(hash);
       await waitForEvidenceReceipt(window.ethereum, hash);
       setState("indexing");
+      const indexed = await waitForIndexedReceipt(packetHash);
+      setIndexingState(indexed ? "ready" : "timeout");
     } catch (caught) {
       setError(walletError(caught));
       setState("review");
@@ -249,7 +256,7 @@ export function BuildWorkflow() {
         >
           <span>CONFIRMED ON BOT MAINNET</span>
           <div>
-            <strong>Transaction confirmed. Receipt indexing is in progress.</strong>
+            <strong>{indexingMessage(indexingState)}</strong>
             <a href={explorerUrl(`tx/${transactionHash}`)} rel="noreferrer" target="_blank">
               Open transaction on BOTScan ↗
             </a>
@@ -261,6 +268,16 @@ export function BuildWorkflow() {
       ) : null}
     </div>
   );
+}
+
+function indexingMessage(state: IndexingState): string {
+  if (state === "ready") {
+    return "Receipt indexed and publicly readable.";
+  }
+  if (state === "timeout") {
+    return "Transaction confirmed. The indexer has not surfaced the receipt yet.";
+  }
+  return "Transaction confirmed. Waiting for the receipt indexer.";
 }
 
 function StageRail({ active }: { readonly active: "INPUT" | "COMPARE" | "REVIEW" | "PUBLISH" }) {
