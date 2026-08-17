@@ -68,14 +68,28 @@ describeDatabase("PostgreSQL persistence", () => {
       ])
     );
 
-    await repository.saveSignedEnvelope({
+    const envelopeInput = {
       packetHash: input.packet.packetHash,
       typedData: makeTypedData(input),
       signature: `0x${"1".repeat(130)}`,
       signerAddress: ATTESTOR,
       publisherAddress: PUBLISHER
-    });
+    } as const;
+    await repository.saveSignedEnvelope(envelopeInput);
+    await repository.saveSignedEnvelope(envelopeInput);
     expect(await connection.db.select().from(signedEnvelopes)).toHaveLength(1);
+    await expect(
+      repository.saveSignedEnvelope({
+        ...envelopeInput,
+        signature: `0x${"2".repeat(130)}`
+      })
+    ).rejects.toThrow("A different immutable envelope already exists");
+    await expect(repository.findDraftById(created.id)).resolves.toMatchObject({
+      packetHash: input.packet.packetHash
+    });
+    await expect(
+      repository.findSignedEnvelopeByPacketHash(input.packet.packetHash)
+    ).resolves.toMatchObject({ publisherAddress: PUBLISHER });
 
     await expect(
       connection.pool.query("UPDATE evidence_drafts SET policy_passed = false")

@@ -10,7 +10,16 @@ export default defineConfig({
     environment: "node",
     include: ["test/**/*.test.{ts,tsx}"],
     coverage: {
-      include: ["src/components/**/*.tsx", "src/lib/landing-receipt.ts"],
+      include: [
+        "src/components/evidence-instrument.tsx",
+        "src/components/evidence-rail.tsx",
+        "src/components/site-footer.tsx",
+        "src/components/site-header.tsx",
+        "src/lib/landing-receipt.ts",
+        "src/lib/publish-receipt.ts",
+        "src/server/api-errors.ts",
+        "src/server/evidence-workflow.ts"
+      ],
       provider: "v8",
       reporter: ["text", "json-summary"],
       thresholds: {

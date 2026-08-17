@@ -94,7 +94,25 @@ export class EvidenceRepository {
     return row ?? null;
   }
 
-  async saveSignedEnvelope(input: PersistSignedEnvelopeInput): Promise<void> {
+  async findDraftById(draftId: string) {
+    const [row] = await this.#db
+      .select()
+      .from(evidenceDrafts)
+      .where(eq(evidenceDrafts.id, draftId))
+      .limit(1);
+    return row ?? null;
+  }
+
+  async findSignedEnvelopeByPacketHash(packetHash: HexString) {
+    const [row] = await this.#db
+      .select()
+      .from(signedEnvelopes)
+      .where(eq(signedEnvelopes.packetHash, packetHash))
+      .limit(1);
+    return row ?? null;
+  }
+
+  async saveSignedEnvelope(input: PersistSignedEnvelopeInput) {
     const draft = await this.findDraftByPacketHash(input.packetHash);
     if (draft === null) {
       throw new DatabaseInvariantError(
@@ -102,13 +120,31 @@ export class EvidenceRepository {
       );
     }
     assertSignedEnvelopeConsistency(input, draft);
-    await this.#db.insert(signedEnvelopes).values({
-      packetHash: input.packetHash,
-      typedData: input.typedData,
-      signature: input.signature,
-      signerAddress: input.signerAddress,
-      publisherAddress: input.publisherAddress
-    });
+    await this.#db
+      .insert(signedEnvelopes)
+      .values({
+        packetHash: input.packetHash,
+        typedData: input.typedData,
+        signature: input.signature,
+        signerAddress: input.signerAddress,
+        publisherAddress: input.publisherAddress
+      })
+      .onConflictDoNothing({ target: signedEnvelopes.packetHash });
+    const stored = await this.findSignedEnvelopeByPacketHash(input.packetHash);
+    if (stored === null) {
+      throw new DatabaseInvariantError("PostgreSQL did not return the signed envelope.");
+    }
+    if (
+      stored.signature !== input.signature ||
+      stored.signerAddress !== input.signerAddress ||
+      stored.publisherAddress !== input.publisherAddress ||
+      !isDeepStrictEqual(stored.typedData, input.typedData)
+    ) {
+      throw new DatabaseInvariantError(
+        "A different immutable envelope already exists for this evidence packet."
+      );
+    }
+    return stored;
   }
 }
 
@@ -200,3 +236,4 @@ function snapshotValues(snapshot: SourceSnapshot) {
 function fromUnixSeconds(value: number): Date {
   return new Date(value * 1_000);
 }
+import { isDeepStrictEqual } from "node:util";

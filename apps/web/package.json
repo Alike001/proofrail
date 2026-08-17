@@ -20,10 +20,14 @@
   },
   "dependencies": {
     "@proofrail/db": "workspace:*",
+    "@proofrail/envelope-signer": "workspace:*",
+    "@proofrail/evidence-core": "workspace:*",
+    "@proofrail/source-service": "workspace:*",
     "next": "16.2.2",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "server-only": "0.0.1"
+    "server-only": "0.0.1",
+    "viem": "2.55.16"
   },
   "devDependencies": {
     "@playwright/test": "1.61.0",
