@@ -1,20 +1,7 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, Instrument_Sans } from "next/font/google";
 import type { ReactNode } from "react";
 
 import "./globals.css";
-
-const instrumentSans = Instrument_Sans({
-  display: "swap",
-  subsets: ["latin"],
-  variable: "--font-instrument"
-});
-const ibmPlexMono = IBM_Plex_Mono({
-  display: "swap",
-  subsets: ["latin"],
-  variable: "--font-plex-mono",
-  weight: ["400", "500", "600"]
-});
 
 export const metadata: Metadata = {
   description:
@@ -27,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en" className={`${instrumentSans.variable} ${ibmPlexMono.variable}`}>
+    <html lang="en">
       <body>{children}</body>
     </html>
   );

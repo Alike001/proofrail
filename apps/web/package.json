@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prebuild": "pnpm --filter @proofrail/db build",
+    "prebuild": "pnpm --filter @proofrail/db build && pnpm --filter @proofrail/envelope-signer build",
     "build": "next build",
     "dev": "next dev",
     "prelint": "pnpm --filter @proofrail/db build",

@@ -13,8 +13,8 @@
   --invalid: #e5483f;
   --page-gutter: clamp(1.25rem, 4vw, 4rem);
   --content: 1440px;
-  --font-sans: var(--font-instrument), Arial, sans-serif;
-  --font-mono: var(--font-plex-mono), "Courier New", monospace;
+  --font-sans: "Instrument Sans", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 }
 
 * {
