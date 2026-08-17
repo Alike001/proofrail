@@ -3,6 +3,7 @@ import { sql } from "drizzle-orm";
 import {
   EvidenceRepository,
   IndexerRepository,
+  PublicReceiptRepository,
   chainEvents,
   createDatabaseConnection,
   currentReceipts,
@@ -102,6 +103,53 @@ describeDatabase("PostgreSQL persistence", () => {
         PUBLISHER
       ])
     ).rejects.toMatchObject({ code: "55000" });
+  });
+
+  it("loads one public receipt with its immutable packet and exact snapshots", async () => {
+    const evidence = new EvidenceRepository(connection.db);
+    const indexer = new IndexerRepository(connection.db);
+    const publicReceipts = new PublicReceiptRepository(connection.db);
+    const input = makeDraftInput();
+    await evidence.createDraft(input);
+    const event = makeEvent({
+      blockHash: hash(21),
+      blockNumber: 120n,
+      cik: input.packet.packet.identifiers.cik,
+      expiresAt: input.packet.packet.expiresAt,
+      issuedAt: input.packet.packet.issuedAt,
+      lei: input.packet.packet.identifiers.lei,
+      nonce: input.packet.packet.nonce,
+      packetHash: input.packet.packetHash,
+      pairKey: input.pairKey,
+      policyVersion: input.packet.packet.policyVersion,
+      schemaVersion: input.packet.packet.schemaVersion,
+      transactionHash: hash(20)
+    });
+    await indexer.ingestBatch({
+      chainId: CHAIN_ID,
+      contractAddress: REGISTRY,
+      events: [event],
+      fromBlock: 120n,
+      toBlock: 120n,
+      toBlockHash: event.blockHash
+    });
+
+    const found = await publicReceipts.findBundle(input.packet.packetHash, CHAIN_ID, REGISTRY);
+    expect(found).toMatchObject({
+      currentPacketHash: input.packet.packetHash,
+      draft: { canonicalPacket: input.packet.canonicalPacket },
+      receipt: { transactionHash: hash(20) }
+    });
+    expect(new TextDecoder().decode(found?.secSnapshot.body)).toBe(
+      new TextDecoder().decode(input.secSnapshot.body)
+    );
+    await expect(
+      publicReceipts.findBundle(
+        input.packet.packetHash,
+        CHAIN_ID,
+        "0x0000000000000000000000000000000000000009"
+      )
+    ).resolves.toBeNull();
   });
 
   it("rolls back both new snapshots when a draft uniqueness check fails", async () => {

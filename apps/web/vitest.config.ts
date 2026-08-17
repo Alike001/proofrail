@@ -18,7 +18,8 @@ export default defineConfig({
         "src/lib/landing-receipt.ts",
         "src/lib/publish-receipt.ts",
         "src/server/api-errors.ts",
-        "src/server/evidence-workflow.ts"
+        "src/server/evidence-workflow.ts",
+        "src/server/public-receipt.ts"
       ],
       provider: "v8",
       reporter: ["text", "json-summary"],

@@ -14,6 +14,30 @@ export const botMainnet = defineChain({
 
 export const evidenceRegistryAbi = [
   {
+    inputs: [{ name: "packetHash", type: "bytes32" }],
+    name: "receipts",
+    outputs: [
+      { name: "pairKey", type: "bytes32" },
+      { name: "cik", type: "uint64" },
+      { name: "lei", type: "bytes20" },
+      { name: "issuedAt", type: "uint64" },
+      { name: "expiresAt", type: "uint64" },
+      { name: "schemaVersion", type: "uint16" },
+      { name: "policyVersion", type: "uint16" },
+      { name: "publisher", type: "address" },
+      { name: "attestor", type: "address" }
+    ],
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    inputs: [{ name: "pairKey", type: "bytes32" }],
+    name: "latestPacketByPair",
+    outputs: [{ name: "packetHash", type: "bytes32" }],
+    stateMutability: "view",
+    type: "function"
+  },
+  {
     inputs: [
       {
         components: [

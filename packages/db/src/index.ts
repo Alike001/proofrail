@@ -31,4 +31,6 @@ export type {
   ReceiptEventBatch,
   ResetIndexResult
 } from "./indexer-repository.js";
+export { PublicReceiptRepository } from "./public-receipt-repository.js";
+export type { PublicReceiptBundleRecord } from "./public-receipt-repository.js";
 export * from "./schema.js";
