@@ -20,6 +20,8 @@
   "scripts": {
     "prebuild": "pnpm --filter @proofrail/source-service build",
     "build": "tsc -p tsconfig.build.json",
+    "predb:migrate": "pnpm build",
+    "db:migrate": "node script/migrate.mjs",
     "db:generate": "drizzle-kit generate",
     "lint": "eslint . --max-warnings 0",
     "pretest": "pnpm --filter @proofrail/source-service build",
