@@ -45,4 +45,4 @@ jobs:
         run: corepack pnpm --filter @proofrail/indexer build
 
       - name: Run indexer until the next scheduled invocation
-        run: timeout --signal=TERM 240s corepack pnpm --filter @proofrail/indexer start
+        run: timeout --preserve-status --signal=TERM 240s corepack pnpm --filter @proofrail/indexer start
