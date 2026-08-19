@@ -81,14 +81,24 @@ export function EvidenceInstrument({ receipt }: { readonly receipt: LandingRecei
         )}
       </div>
       {available ? (
-        <a
-          className="instrument__explorer"
-          href={explorerUrl(`tx/${receipt.transactionHash}`)}
-          rel="noreferrer"
-          target="_blank"
-        >
-          Open transaction on BOTScan
-        </a>
+        <>
+          <a
+            className="instrument__explorer"
+            href={explorerUrl(`tx/${receipt.transactionHash}`)}
+            rel="noreferrer"
+            target="_blank"
+          >
+            Open transaction on BOTScan
+          </a>
+          <a
+            className="instrument__explorer"
+            href={explorerUrl(`address/${receipt.registryAddress}`)}
+            rel="noreferrer"
+            target="_blank"
+          >
+            Open registry on BOTScan
+          </a>
+        </>
       ) : null}
     </section>
   );

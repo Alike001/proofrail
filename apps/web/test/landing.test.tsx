@@ -41,6 +41,7 @@ describe("landing product surface", () => {
     expect(html).toContain("CONFIRMED ON BOT MAINNET");
     expect(html).toContain(`/receipt/${receipt.packetHash}`);
     expect(html).toContain(`tx/${receipt.transactionHash}`);
+    expect(html).toContain(`address/${receipt.registryAddress}`);
   });
 
   it("keeps the four-stage evidence path and core navigation visible", () => {
