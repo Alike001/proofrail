@@ -12,14 +12,14 @@ It does not prove company ownership, issuer authority, regulatory approval, inve
 
 ## Current status
 
-The complete v1 product runs locally. It includes the landing page, official-source build flow, publisher-bound BOT wallet publication, wallet-free public receipt, deterministic replay, live source recheck, exact evidence downloads, PostgreSQL persistence, durable event indexing, and the `ProofRailEvidenceRegistry` contract.
+The complete v1 product is deployed on BOT Chain Mainnet and is available at [proofrail-web-phi.vercel.app](https://proofrail-web-phi.vercel.app). It includes the landing page, official-source build flow, publisher-bound BOT wallet publication, wallet-free public receipt, deterministic replay, live source recheck, exact evidence downloads, PostgreSQL persistence, durable event indexing, and the `ProofRailEvidenceRegistry` contract.
 
-BOT mainnet deployment is pending explicit transaction review. Until a real registry and receipt exist, the landing page labels mainnet proof as unavailable. The repository does not substitute a confirmed fixture.
+The deployed registry is [`0x2Cd561589678F5CB161d2209a323e42B09C44B70`](https://scan.botchain.ai/address/0x2Cd561589678F5CB161d2209a323e42B09C44B70) on chain 677. The live Apple receipt is [available publicly](https://proofrail-web-phi.vercel.app/receipt/0x9b2fc129d2cc55cc2bc65dadf0517873f55cd0b5b9a38c5c91b99a1cc6cb94d7), and its accepted transaction is [`0xc5bbb8f7ace32aedf43507dcfeb3f091d3c82a436ebe50a57e3af53b93736133`](https://scan.botchain.ai/tx/0xc5bbb8f7ace32aedf43507dcfeb3f091d3c82a436ebe50a57e3af53b93736133). The repository does not substitute a confirmed fixture.
 
 ## Product surfaces
 
-- `/` explains the product and shows the latest indexed receipt from the configured BOT mainnet registry.
-- `/build` retrieves exact SEC and GLEIF records, runs fixed policy version 1, and prepares a publisher-bound receipt for chain 677.
+- [`/`](https://proofrail-web-phi.vercel.app/) explains the product and shows the latest indexed receipt from the configured BOT mainnet registry.
+- [`/build`](https://proofrail-web-phi.vercel.app/build) retrieves exact SEC and GLEIF records, runs fixed policy version 1, and prepares a publisher-bound receipt for chain 677.
 - `/receipt/[packetHash]` opens without a wallet and shows saved evidence, deterministic replay, live recheck, downloads, and BOTScan proof.
 
 The 10-second story is: public company records change, ProofRail preserves which evidence packet a BOT application accepted and lets anyone replay it.
@@ -55,7 +55,7 @@ corepack pnpm check
 corepack pnpm build
 ```
 
-`pnpm check` runs strict TypeScript, lint, evidence-engine, source-adapter, database, signer, indexer, web, and Foundry checks. The contract suite includes 28 tests and 256 fuzz cases. The web suite includes 38 unit tests. Run the 22 desktop and mobile browser checks separately with `corepack pnpm --filter @proofrail/web test:e2e` after a production build.
+`pnpm check` runs strict TypeScript, lint, evidence-engine, source-adapter, database, signer, indexer, web, and Foundry checks. The contract suite includes 28 tests and 256 fuzz cases. The web suite includes 40 unit tests. Run the 22 desktop and mobile browser checks separately with `corepack pnpm --filter @proofrail/web test:e2e` after a production build.
 
 The source adapters retain the exact response body received from each official service, calculate its SHA-256 hash, reject identifier mismatches and malformed schemas, and expose stable error codes. SEC access requires a declared contact identity in `SEC_USER_AGENT`, such as `ProofRail maintainer@example.com`. It is used only in the server request header.
 
